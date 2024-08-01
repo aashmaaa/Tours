@@ -24,3 +24,20 @@ const port = 27017 || process.env.PORT;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
+
+process('unhandledRejection', (err) => {
+  console.log('UNHANDLED REJECTION! 💣 Shutting Down...');
+  console.log(err);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION! 💣 Shutting Down...');
+  console.log(err);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+console.log(x);

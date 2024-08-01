@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+const globalErrorHandeler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -19,11 +21,6 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
-  console.log('Jello from the middleware 🫶');
-  next();
-});
-
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
@@ -39,16 +36,13 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-// 4. START SERVER
+app.all('*', (req, res, next) => {
+  // const err = new Error(`Can't find ${req.originalUrl} on the server`);
+  // err.status = 'fai;';
+  // err.statusCode = 404;
+  next(new AppError(`Can't find ${req.originalUrl} on the server`));
+});
+
+app.use(globalErrorHandeler);
 
 module.exports = app;
-// "devDependencies": {
-//   "eslint": "^8.57.0",
-//   "eslint-config-airbnb": "^19.0.4",
-//   "eslint-config-prettier": "^9.1.0",
-//   "eslint-plugin-import": "^2.29.1",
-//   "eslint-plugin-jsx-a11y": "^6.9.0",
-//   "eslint-plugin-node": "^11.1.0",
-//   "eslint-plugin-prettier": "^5.2.1",
-//   "eslint-plugin-react": "^7.35.0",
-//   "prettier": "^3.3.3"
