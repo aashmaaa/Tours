@@ -32,7 +32,7 @@ app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
 
-process('unhandledRejection', (err) => {
+process.on('unhandledRejection', (err) => {
   console.log('UNHANDLED REJECTION! 💣 Shutting Down...');
   console.log(err);
   server.close(() => {

@@ -6,7 +6,7 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateFieldDB = (err) => {
-  const value = err.errmsg.match(/(["'])(\\?.)*?\1/);
+  const value = err.errmsg.match(/"([^"]*)"/)[0];
   console.log(value);
   const message = `Duplicate field value: x. Please use another value!!`;
   return new AppError(message, 404);
@@ -16,7 +16,7 @@ const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
-    message: err.message,
+    message: err,
     stack: err.stack,
   });
 };
@@ -37,7 +37,7 @@ const sendErrorProd = (err, res) => {
     //2. Send generic response
     res.status(500).json({
       status: 'error',
-      message: 'Something went very wrong',
+      message: err,
     });
   }
 };
