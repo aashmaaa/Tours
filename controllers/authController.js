@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
@@ -43,10 +44,9 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
-  console.log(user);
+  //   console.log(user);
   // 3. If everything is okay send response to the client
   const token = signToken(user._id);
-  console.log(token);
 
   res.status(200).json({
     status: 'success',
@@ -61,9 +61,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
-    const token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(' ')[1];
   }
-  console.log(token);
 
   if (!token) {
     return next(
@@ -73,8 +72,24 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2. Verification token
 
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
   // 3. Check if user still exists
+  const freshUser = await User.findById(decoded.id);
+  if (!freshUser) {
+    return next(
+      new AppError('The user belonging to the user does not exist!!', 401)
+    );
+  }
 
   // 4. Check if changed password after the token was issued
+  if (freshUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password! Please log in again', 401)
+    );
+  }
+
+  //Grant ACCESS to PROTECTED ROUTE
+  req.user = freshUser;
   next();
 });
