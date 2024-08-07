@@ -15,15 +15,23 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide valid email!'],
   },
-  photo: {
+
+  photo: String,
+
+  role: {
     type: String,
+    enum: ['user', 'admin', 'other'],
+    default: 'user',
+    // required: [true, 'Please enter a name'],
   },
+
   password: {
     type: String,
     required: [true, 'Please provide a password'],
     minLength: 8,
     select: false,
   },
+
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm a password'],
