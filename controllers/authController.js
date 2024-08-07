@@ -105,3 +105,19 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  //get user based on POSTed email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError('theres no user with this email!', 404));
+  }
+
+  // 2. genetate the ramdom reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validationBeforeSave: false });
+
+  // 3. Send it back as an email
+});
+
+exports.resetPassword = (req, res, next) => {};
