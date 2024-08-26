@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -13,7 +14,13 @@ const reviewRouter = require('./routes/reviewRoute');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 //M  1. GLOBAL MIDDLEWARE
+// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
+
 //Set security http headers
 app.use(helmet());
 
@@ -43,7 +50,6 @@ app.use(xss());
 
 /////////////////
 // TO USE STATIC FILE FOLDERS IN OUR APPLICATION
-app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -58,6 +64,10 @@ app.use((req, res, next) => {
 // app.get('/api/v1/tours/:id', getTour);
 // app.path('api/v1/tours/:id', updateTour);
 // app.delete('api/v1/tours/:id', deleteTour);
+
+app.get('/', (req, res) => {
+  res.status(200).render('base');
+});
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
